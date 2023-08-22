@@ -1,0 +1,36 @@
+version: "3"
+services:
+        mymariadb:
+                image: mariadb
+                container_name: mymariadb
+                restart: always
+                ports:
+                        - 3307:3306
+                volumes:
+                        - /home/datalab/mariadb_vol/mariadb_data/:/var/lib/mysql
+                        - /home/datalab/mariadb_vol/mariadb_conf/:/etc/mysql/conf.d
+                environment:
+                        MARIADB_ROOT_PASSWORD: 123456
+                        MARIADB_USER: datalab
+                        MARIADB_PASSWORD: 123456
+                        MARIADB_DATABASE: testdb
+                networks:
+                        - nw
+        pydocker:
+                image: pydocker
+                container_name: pydocker
+                networks:
+                        - nw
+                depends_on:
+                        - mymariadb
+                command: ["sh","wait-for","mymariadb:3306","--","python","py_mariadb.py"]
+                environment: 
+                        MARIADB_USER: root
+                        MARIADB_DATABASE: testdb    
+                        MARIADB_PASSWORD: 123456
+                        MARIADB_PORT: 3307
+                        MARIADB_HOST: 10.80.28.13      
+                
+networks:
+        nw:
+               driver: bridge
