@@ -10,10 +10,8 @@ services:
                         - /home/datalab/mariadb_vol/mariadb_data/:/var/lib/mysql
                         - /home/datalab/mariadb_vol/mariadb_conf/:/etc/mysql/conf.d
                 environment:
-                        MARIADB_ROOT_PASSWORD: 123456
-                        MARIADB_USER: datalab
-                        MARIADB_PASSWORD: 123456
-                        MARIADB_DATABASE: testdb
+                        - MARIADB_ROOT_PASSWORD      
+                        - MARIADB_DATABASE
                 networks:
                         - nw
         pydocker:
@@ -25,11 +23,11 @@ services:
                         - mymariadb
                 command: ["sh","wait-for","mymariadb:3306","--","python","py_mariadb.py"]
                 environment: 
-                        MARIADB_USER: root
-                        MARIADB_DATABASE: testdb    
-                        MARIADB_PASSWORD: 123456
-                        MARIADB_PORT: 3307
-                        MARIADB_HOST: 10.80.28.13      
+                        - MARIADB_USER
+                        - MARIADB_DATABASE    
+                        - MARIADB_PASSWORD
+                        - MARIADB_PORT
+                        - MARIADB_HOST      
                 
 networks:
         nw:

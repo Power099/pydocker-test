@@ -36,8 +36,8 @@ def connect():
         for one in data:
             print(one)
         prtime()
-    Mon()
-    Timer(360,prtime).start()
+    Timer(3,Mon).start()
+    prtime()
     #Timer(120,prtime).start()
         #time.sleep(120)
     #关闭数据库连接
