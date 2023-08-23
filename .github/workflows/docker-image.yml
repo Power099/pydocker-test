@@ -16,8 +16,8 @@ jobs:
     - name: Checkout Source
       uses: actions/checkout@v3
     - name: Docker Login
-      run: docker login -u airasuka -p ${{ secrets.DOCKERHUB_LOGIN_PASSWORD }}
+      run: docker login -u airasuka -p 10151015.
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag airasuka/dockertest:pydocker:$(date +%s)
+      run: docker build . --file Dockerfile --tag airasuka/dockertest:pydocker
     - name: Push the Docker Image
       run: docker airasuka/dockertest:pydocker
