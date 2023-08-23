@@ -18,6 +18,6 @@ jobs:
     - name: Docker Login
       run: docker login -u airasuka -p 10151015.
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag airasuka/dockertest:pydocker
+      run: docker build pydocker . --file Dockerfile --tag airasuka/dockertest:pydocker
     - name: Push the Docker Image
       run: docker airasuka/dockertest:pydocker
