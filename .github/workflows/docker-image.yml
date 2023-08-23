@@ -20,4 +20,4 @@ jobs:
     - name: Build the Docker image
       run: docker build pydocker . --file Dockerfile --tag airasuka/dockertest:pydocker
     - name: Push the Docker Image
-      run: docker airasuka/dockertest:pydocker
+      run: docker push airasuka/dockertest:pydocker
