@@ -23,6 +23,6 @@ jobs:
           const pr_number = context.payload.pull_request;
           console.log(pr_number);
     - name: Get print
-      run: echo "${{ toJson(github) }}"
+      run: echo "${{ toJson(context) }}"
       # run: echo "${{ steps.PRcomment.outputs.pr_number }}"
    
