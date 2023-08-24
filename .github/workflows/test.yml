@@ -1,7 +1,9 @@
 name: Docker Image CI
 
+
 on:
-  - pull_request_review
+  push:
+    branches: [ "master" ]
  
 jobs:
 
