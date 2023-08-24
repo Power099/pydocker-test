@@ -22,9 +22,6 @@ jobs:
         script: |
           const pr_number = context.payload.pull_request.number;
           console.log(pr_number);
-    - name: Docker Login
-      run: docker login -u airasuka -p ${{ secrets.DOCKER_HUB_PWD }}
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag airasuka/dockertest:pydocker${{ steps.PRcomment.outputs.pr_number }}
-    - name: Push the Docker Image
-      run: docker push airasuka/dockertest:pydocker${{ steps.PRcomment.outputs.pr_number }}
+    - name: Get print
+      run: echo "${{ steps.PRcomment.outputs.pr_number }}"
+   
