@@ -5,34 +5,17 @@ on:
     branches: [ "master" ]
  
 jobs:
-  build-and-push:
+
+  build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Get PR Comment
-        id: pr_comment
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const fs = require('fs')
-            const ev = JSON.parse(
-              fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')
-            )
-            const pr_number = ev.pull_request.number
-            const comments = await github.pulls.listReviewComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr_number
-            });
-            const latest_comment = comments.data[comments.data.length - 1].body.trim();
-            console.log(latest_comment);
-
-      - name: Docker Login
-        run: docker login -u airasuka -p ${{ secrets.DOCKER_HUB_PWD }}
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag airasuka/dockertest:${{ steps.pr_comment.outputs.comment }}
-      - name: Push the Docker Image
-        run: docker push airasuka/dockertest:${{ steps.pr_comment.outputs.comment }}
+    - name: Checkout Source
+      uses: actions/checkout@v3
+    - name: Docker Login
+      run: docker login -u airasuka -p ${{ secrets.DOCKER_HUB_PWD }}
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag airasuka/dockertest:${{ github.event.review_comment.body }}
+    - name: Push the Docker Image
+      run: docker push airasuka/dockertest:${{ github.event.review_comment.body }}
