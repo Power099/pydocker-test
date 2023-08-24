@@ -1,5 +1,6 @@
 name: Docker Image CI
 
+
 on:
   push:
     branches: [ "master" ]
@@ -13,9 +14,13 @@ jobs:
     steps:
     - name: Checkout Source
       uses: actions/checkout@v3
-    - name: Docker Login
-      run: docker login -u airasuka -p ${{ secrets.DOCKER_HUB_PWD }}
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag airasuka/dockertest:${{ github.event.review_comment.body }}
-    - name: Push the Docker Image
-      run: docker push airasuka/dockertest:${{ github.event.review_comment.body }}
+    - name: Check print github.event.pull_request.title
+      run: echo "${{ github.event.pull_request.title }}"
+    - name: Check print github.event.pull_request.body
+      run: echo "${{ github.event.pull_request.body }}"
+    - name: Check print github.event.comment.body
+      run: echo "${{ github.event.comment.body }}"
+    - name: Check print github.event.review.body
+      run: echo "${{ github.event.review.body }}"
+    - name: Check print github.event.review_comment.body
+      run: echo "${{ github.event.review_comment.body }}"
