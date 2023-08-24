@@ -20,7 +20,7 @@ jobs:
       uses: actions/github-script@v4
       with:
         script: |
-          const pr_number = context.payload.pull_request.number;
+          const pr_number = context.payload.pull_request;
           console.log(pr_number);
     - name: Get print
       run: echo "${{ steps.PRcomment.outputs.pr_number }}"
