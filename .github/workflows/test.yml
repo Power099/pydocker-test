@@ -17,7 +17,11 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const pr_number = context.payload.pull_request.number;
+            const fs = require('fs')
+            const ev = JSON.parse(
+              fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')
+            )
+            const pr_number = ev.pull_request.number
             const comments = await github.pulls.listReviewComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
