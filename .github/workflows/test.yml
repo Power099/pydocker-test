@@ -9,7 +9,7 @@ on:
 jobs:
 
   build:
-    if: ${{ github.event.review.state == "approved" && contains(github.event.review.body , 'release-') && github.event.pull_request.base.ref == 'master' }}
+    if: ${{ github.event.review.state == 'approved' && contains(github.event.review.body, 'release-') && github.event.pull_request.base.ref == 'master' }}   
     runs-on: ubuntu-latest
 
     steps:
