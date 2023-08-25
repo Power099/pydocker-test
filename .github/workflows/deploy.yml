@@ -17,9 +17,6 @@ jobs:
           docker build -t pydocker .
           docker-compose up -d
           docker exec -it mymariadb /bin/bash
-          mariadb -u root -p
-          ${{ secerts.MARIADB_PWD }}
-          USE testdb
           exit
           docker-compose down
     
