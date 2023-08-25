@@ -12,7 +12,8 @@ jobs:
       - name: Run tests
         run: |
           cd /home/datalab/pyDemo
-          git pull origin
+          git pull origin master
+          git pull origin brtest
           docker build -t pydocker .
           docker-compose up -d
           docker-compose down
