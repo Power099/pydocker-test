@@ -11,9 +11,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Run tests
         run: |
-          cd /home/datalab/.ssh
-          git pull origin
           cd /home/datalab/pyDemo
+          git pull origin
           docker build -t pydocker .
           docker-compose up -d
           docker-compose down
