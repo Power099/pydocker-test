@@ -16,7 +16,5 @@ jobs:
           git pull origin brtest
           docker build -t pydocker .
           docker-compose up -d
-          docker exec -it mymariadb /bin/bash
-          exit
           docker-compose down
     
