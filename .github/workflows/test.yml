@@ -1,26 +1,23 @@
 name: Docker Image CI
 
-
 on:
-  push:
-    branches: [ "master" ]
+  pull_request_review:
+     types:
+       - submitted
+       - edited
  
 jobs:
 
   build:
-
+    if: ${{ github.event.review.state == "approved" && contains(github.event.review.body , 'release-') && github.event.pull_request.base.ref == 'master' }}
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Source
       uses: actions/checkout@v3
-    - name: Check print github.event.pull_request.title
-      run: echo "${{ github.event.pull_request.title }}"
-    - name: Check print github.event.pull_request.body
-      run: echo "${{ github.event.pull_request.body }}"
-    - name: Check print github.event.comment.body
-      run: echo "${{ github.event.comment.body }}"
-    - name: Check print github.event.review.body
-      run: echo "${{ github.event.review.body }}"
-    - name: Check print github.event.review_comment.body
-      run: echo "${{ github.event.review_comment.body }}"
+    - name: Docker Login
+      run: docker login -u airasuka -p ${{ secrets.DOCKER_HUB_PWD }}
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag dockertest/pydocker:${{ github.event.review.body }}
+    - name: Push the Docker Image
+      run: docker push dockertest/pydocker:${{ github.event.review.body }}
