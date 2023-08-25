@@ -18,7 +18,7 @@ jobs:
           docker-compose up -d
           docker exec -it mymariadb /bin/bash
           mariadb -u root -p
-          ${{ secert.MARIADB_PWD }}
+          ${{ secerts.MARIADB_PWD }}
           USE testdb
           exit
           docker-compose down
