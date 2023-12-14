@@ -49,15 +49,15 @@ ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   enabled: true #  true
   className: ""
   annotations:
-    nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
-    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+    # nginx.ingress.kubernetes.io/affinity: cookie
+    # nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    # nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    # nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
   hosts:
-    - host: k3s-internal.bielcrystal.com
-      paths:
-        - path: /cnc-backend
-          pathType: Prefix
+    - host: k3s.bielcrystal.com
+      # paths:
+      #   - path: /cnc-backend
+      #     pathType: Prefix
   tls: []
   #  - secretName: k8s.bielcrystal.com.tls
   #    hosts:
@@ -153,7 +153,7 @@ cronjob:
       readOnly: true
   envFrom:
     - secretRef:
-        name: cnc-backend # git仓项目名
+        name: pydocker-test # git仓项目名
     - secretRef:
         name: common-env
   command:
