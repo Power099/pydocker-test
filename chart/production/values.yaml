@@ -1,0 +1,167 @@
+replicaCount: 1 # 需要启动的实例个数
+image:
+  repository: harbor.bielcrystal.com/library/pydocker-test # harbor仓镜像名称
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+
+  tag: "release-1.0.0" # 构建docker镜像时优先拉这个版本
+statefulset:
+  enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
+imagePullSecrets:
+  - name: harbor-registry
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+podAnnotations: {}
+annotations: {}
+podSecurityContext: {}
+tolerations: [] # 适用于非GPU环境
+# fsGroup: 2000
+securityContext: {}
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+service:
+  type: NodePort
+  ports:
+    - name: tcp
+      port: 1688
+      nodePort: 31688
+    - name: http
+      port: 8000
+  containerPorts:
+    - name: tcp
+      containerPort: 1688
+    - name: http
+      containerPort: 8000
+ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
+  enabled: true #  true
+  className: ""
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+  hosts:
+    - host: k3s-internal.bielcrystal.com
+      paths:
+        - path: /cnc-backend
+          pathType: Prefix
+  tls: []
+  #  - secretName: k8s.bielcrystal.com.tls
+  #    hosts:
+  #      - k8s.bielcrystal.com
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 1000m
+    memory: 2000Mi
+  requests:
+    cpu: 100m
+    memory: 200Mi
+autoscaling: # 自动扩缩容
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  averageUtilization: 80
+nodeSelector: {}
+affinity: {}
+updateStrategy:
+  ## StrategyType
+  ## Can be set to RollingUpdate or OnDelete
+  ##
+  type: RollingUpdate
+## Configure extra options for liveness and readiness probes
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+livenessProbe:
+  enabled: false
+  httpGet:
+    path: "/healthz"
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 30
+  failureThreshold: 5
+readinessProbe:
+  enabled: false
+  httpGet:
+    path: "/healthz"
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 20
+startupProbe:
+  enabled: false
+  httpGet:
+    path: "/healthz"
+    port: 8080
+    scheme: HTTP
+  periodSeconds: 20
+  failureThreshold: 30
+## Env set
+## ref: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+env: []
+## Configure a volume
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/#configure-a-volume-for-a-pod/
+volumeMounts:
+  - name: common-certs
+    mountPath: "/common-certs"
+    readOnly: true
+volumes:
+  - name: common-certs
+    secret:
+      secretName: common-certs
+## Configure all key-value pairs in a ConfigMap or Secrets
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+envFrom: # env环境变量配置
+  - secretRef:
+      name: cnc-backend # git仓项目名
+  - secretRef:
+      name: common-env
+## Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
+topologySpreadConstraints: []
+## Creating a CronJob
+## Ref: https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/
+cronjob:
+  enabled: false
+  schedule: "0/30 * * * *" # 每隔30分钟跑一次
+  startingDeadlineSeconds: 60 # 1 分钟 错过了计划时间的情况下允许延迟启动的最长时间，未定义该字段则代表永远不会超时，可能导致同时运行多个Job
+  concurrencyPolicy: Replace # 如果新任务的执行时间到了而老任务没有执行完，CronJob 会用新任务替换当前正在运行的任务。
+  backoffLimit: 1 #  失败重试次数
+  parallelism: 1 # 并行运行数量
+  nodeSelector: {}
+  tolerations: []
+  volumeMounts:
+    - name: common-certs
+      mountPath: "/common-certs"
+      readOnly: true
+  envFrom:
+    - secretRef:
+        name: cnc-backend # git仓项目名
+    - secretRef:
+        name: common-env
+  command:
+    - python
+    - -m
+    - app.app.automation_jobs.resend_wecom_msg
+  workingDir: /app # 脚本所在的目录
+  volumes:
+    - name: common-certs
+      secret:
+        secretName: common-certs

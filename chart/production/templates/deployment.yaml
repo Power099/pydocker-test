@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+{{- if .Values.statefulset.enabled }}  # 判断使用deployment和statefulset类型
+kind: StatefulSet 
+{{- else }}
+kind: Deployment
+{{- end }}
+metadata:
+  name: {{ include "biel.name" . }} # 引入命名模板 biel.name 得到的值
+  labels:
+    {{- include "biel.labels" . | nindent 4 }} # nindent指定长度缩进给定字符串所在行，并且在开头新添加一行。
+  {{- if .Values.annotations }}  # 自定义注释
+  annotations:
+    {{- toYaml .Values.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }} # .是对 当前作用域 的引用，.Values 表示在当前作用域查找内置Values对象：读取了values.yaml文件
+  replicas: {{ .Values.replicaCount }} # 如果未开启自动缩放，这行才生效
+  {{- end }}
+  {{- if and .Values.updateStrategy .Values.statefulset.enabled }} # 如果values.yaml中的updateStrategy不为空 且为 statefulset
+  updateStrategy: {{- toYaml .Values.updateStrategy | nindent 4 }} # 将.Values.updateStrategy的值(如type: RollingUpdate)，转换为yaml格式。通过-消除空格，然后换行，增加4个空格
+  {{- end }}
+  {{- if .Values.statefulset.enabled }}  # statefulset需要定义serviceName
+  serviceName: {{ include "biel.name" . }}  # 引入命名模板 biel.name 得到的值
+  {{- end }}  
+  selector:
+    matchLabels:
+      {{- include "biel.selectorLabels" . | nindent 6 }} 
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }} # with 将当前作用域指向.Values.podAnnotations
+      annotations:
+        {{- toYaml . | nindent 8 }} # 对当前作用域的值进行处理
+      {{- end }} # 仅在with与end之间起效
+      labels:
+        {{- include "biel.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "biel.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints: 
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }} # Chart也是内置对象：读取了Chart.yaml文件
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            {{- toYaml .Values.service.containerPorts | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
+            
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 14 }}
+          {{- end }}
+          
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 14 }}
+          {{- end }}
+          
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 14 }}
+          {{- end }}
+          
+        
+            
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      
+      volumes:
+        {{- toYaml .Values.volumes | nindent 8 }}

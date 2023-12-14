@@ -1,0 +1,40 @@
+{{- if .Values.cronjob.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ printf "%s-cronjob" (include "biel.name" .) }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  concurrencyPolicy: Replace
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  startingDeadlineSeconds: {{ .Values.cronjob.startingDeadlineSeconds }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.cronjob.backoffLimit }}
+      parallelism: {{ .Values.cronjob.parallelism }}
+      template:
+        spec:
+          {{- if .Values.cronjob.nodeSelector }}
+          nodeSelector: {{- toYaml .Values.cronjob.nodeSelector | nindent 12  }}
+          {{- end }}
+          {{- if .Values.cronjob.tolerations }}
+          tolerations: {{- toYaml .Values.cronjob.tolerations | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: {{ printf "%s-cronjob" (include "biel.name" .) }}
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+              volumeMounts:
+                {{- toYaml .Values.cronjob.volumeMounts | nindent 16 }}
+              envFrom: {{- toYaml .Values.cronjob.envFrom | nindent 16 }}  
+              imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+              command: {{- toYaml  .Values.cronjob.command | nindent 16 }}
+              workingDir: {{ .Values.cronjob.workingDir | quote }}
+          restartPolicy: OnFailure
+          volumes:
+            {{- toYaml .Values.cronjob.volumes | nindent 12 }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
