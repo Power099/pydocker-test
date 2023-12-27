@@ -1,13 +1,14 @@
 replicaCount: 1 # 需要启动的实例个数
 image:
-  repository: harbor.bielcrystal.com/library/pydocker-test # harbor仓镜像名称
+  repository: harbor.bielcrystal.com/library/pydocker # harbor仓镜像名称
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "release-1.0.0" # 构建docker镜像时优先拉这个版本
+  tag: "latest" # 构建docker镜像时优先拉这个版本
 statefulset:
   enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
-imagePullSecrets: []
+imagePullSecrets: 
+  - name: harbor-registry
 nameOverride: ""
 fullnameOverride: ""
 serviceAccount:
@@ -35,15 +36,11 @@ service:
   type: NodePort
   ports:
     - name: tcp
-      port: 1688
-      nodePort: 31688
-    - name: http
-      port: 8000
+      port: 8080
+      nodePort: 8080
   containerPorts:
     - name: tcp
-      containerPort: 1688
-    - name: http
-      containerPort: 8000
+      containerPort: 8080
 ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   enabled: true #  true
   className: ""
