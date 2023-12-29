@@ -3,3 +3,4 @@ cryptography
 mariadb
 schedule
 fastapi
+uvicorn
