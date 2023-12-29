@@ -2,3 +2,4 @@ pymysql
 cryptography
 mariadb
 schedule
+fastapi
