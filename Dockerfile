@@ -14,4 +14,4 @@ RUN apt -y install iputils-ping
 EXPOSE 8080
 
 COPY wait-for .
-CMD ["python", "main.py"]
+CMD ["uvicorn","main:app","--reload"]
