@@ -1,10 +1,10 @@
 replicaCount: 1 # 需要启动的实例个数
 image:
-  repository: harbor.bielcrystal.com/library/pydocker-test # harbor仓镜像名称
+  repository: airasuka/pydocker # harbor仓镜像名称
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "release-1.0.0" # 构建docker镜像时优先拉这个版本
+  tag: "release-v33" # 构建docker镜像时优先拉这个版本
 statefulset:
   enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
 imagePullSecrets: []
