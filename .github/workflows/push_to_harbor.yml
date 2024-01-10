@@ -22,7 +22,10 @@ jobs:
           sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
           echo $new_tag
           echo $current_tag
-
+          docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
+          docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
+          docker push harbor.bielcrystal.com/library/pydocker:$new_tag
+          
       #- name: Commit and push updated values.yaml
       #  run: |
       #    git config --global user.email "WQ@example.com"
@@ -31,10 +34,10 @@ jobs:
       #    git commit -m "Auto-increment tag to $new_tag"
       #    git push
 
-      - name: Login to Harbor registry
-        run: docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
+      # - name: Login to Harbor registry
+      #  run: docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Build and push Docker image
-        run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
-          docker push harbor.bielcrystal.com/library/pydocker:$new_tag
+      #- name: Build and push Docker image
+      #  run: |
+      #    docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
+      #    docker push harbor.bielcrystal.com/library/pydocker:$new_tag
