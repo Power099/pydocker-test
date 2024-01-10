@@ -33,7 +33,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           # 登录到私人harbor仓库
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} harbor.bielcrystal.com
+          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
           
           # 构建镜像
           docker build -t harbor.bielcrystal.com/library/pydocker:$new_version .
