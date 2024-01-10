@@ -22,6 +22,8 @@ jobs:
           sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
           echo $new_tag
           echo $current_tag
+          echo $minor
+          echo $major
           docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
           docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
           docker push harbor.bielcrystal.com/library/pydocker:$new_tag
