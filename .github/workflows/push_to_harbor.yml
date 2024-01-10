@@ -1,4 +1,4 @@
-name: Release Workflow
+name: Update Chart Values and Push Image
 
 on:
   push:
@@ -6,41 +6,33 @@ on:
       - master
 
 jobs:
-  release:
+  update-chart-values-and-push-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get current tag
-        id: get_tag
-        run: echo ::set-output name=tag::$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
+      - name: Update Chart Values
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'chart/production/values.yaml'
+          propertyPath: 'image.tag'
+          value: ${{ steps.increment-tag.outputs.newTag }}
+          commitChange: true
+          message: 'Update image tag in values.yaml'
 
-      - name: Calculate new tag
-        id: calculate_tag
+      - name: Increment Tag
+        id: increment-tag
         run: |
-          current_tag=${{ steps.get_tag.outputs.tag }}
-          major=$(echo $current_tag | cut -d. -f1 | cut -d- -f2)
-          minor=$(echo $current_tag | cut -d. -f2)
-          new_minor=$((minor+1))
-          new_tag="release-0.${major}.${new_minor}"
-          echo ::set-output name=new_tag::$new_tag
+          currentTag=$(awk '/tag:/ {print $2}' chart/production/values.yaml | tr -d '"')
+          IFS='.' read -r major minor <<< $currentTag
+          newTag="release-$major.$((minor + 1))"
+          echo "::set-output name=newTag::$newTag"
 
-      - name: Update values.yaml
-        run: yq eval -i '.tag = env(new_tag)' chart/production/values.yaml
+      - name: Login to Harbor Registry
+        run: echo "${{ secrets.HARBOR_TOKEN }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
 
-      - name: Commit and push changes
+      - name: Build and Push Docker Image
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add chart/production/values.yaml
-          git commit -m "Bump version to ${{ steps.calculate_tag.outputs.new_tag }}"
-          git push
-
-      - name: Docker login
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login harbor.bielcrystal.com -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      - name: Build and push Docker image
-        run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:${{ steps.calculate_tag.outputs.new_tag }} .
-          docker push harbor.bielcrystal.com/library/pydocker:${{ steps.calculate_tag.outputs.new_tag }}
+          docker build -t harbor.bielcrystal.com/library/pydocker:latest .
+          docker push harbor.bielcrystal.com/library/pydocker:latest
