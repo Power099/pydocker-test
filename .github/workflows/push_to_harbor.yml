@@ -1,4 +1,4 @@
-name: Increase Version and Push Image Tag
+name: Update Chart and Push Image
 
 on:
   push:
@@ -6,23 +6,36 @@ on:
       - master
 
 jobs:
-  increase-version-and-push-image-tag:
+  update-tag-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-    
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Increase tag version in values.yaml
+        run: |
+          # Extract current tag from values.yaml
+          current_tag=$(yq e '.image.tag' chart/production/values.yaml)
+          # Increase the tag version
+          new_tag="v$(echo $current_tag | cut -c 2- | awk -F. '{$NF+=1; OFS="."; print $0}')"
+          # Update values.yaml with the new tag
+          yq e -i '.image.tag = "'$new_tag'"' chart/production/values.yaml
+
+      - name: Commit and push updated values.yaml
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add chart/production/values.yaml
+          git commit -m "Increase tag version in values.yaml"
+          git push
 
       - name: Login to Harbor registry
-        run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
+        run: docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Build and push Docker image
         run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:latest .
-          
-
-      - name: Create and push new tag
-        run: |
-          docker tag harbor.bielcrystal.com/library/pydocker:latest harbor.bielcrystal.com/library/pydocker:v0.$(( $(echo "$(cat chart/production/values.yaml)" | grep -oP '(?<=tag: "v)0*\K[0-9]+') ))
-          docker push harbor.bielcrystal.com/library/pydocker:v0.$(( $(echo "$(cat chart/production/values.yaml)" | grep -oP '(?<=tag: "v)0*\K[0-9]+') ))
+          docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
+          docker push harbor.bielcrystal.com/library/pydocker:$new_tag
