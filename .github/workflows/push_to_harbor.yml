@@ -1,4 +1,4 @@
-name: Update Chart and Push Image
+name: Update Image Tag and Push to Harbor
 
 on:
   push:
@@ -12,30 +12,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      - name: Get the current tag from values.yaml
+        id: get-tag
+        run: echo ::set-output name=tag::$(awk '/tag:/ {print $2}' chart/production/values.yaml)
 
-      - name: Increase tag version in values.yaml
-        run: |
-          # Extract current tag from values.yaml
-          current_tag=$(yq e '.image.tag' chart/production/values.yaml)
-          # Increase the tag version
-          new_tag="v$(echo $current_tag | cut -c 2- | awk -F. '{$NF+=1; OFS="."; print $0}')"
-          # Update values.yaml with the new tag
-          yq e -i '.image.tag = "'$new_tag'"' chart/production/values.yaml
+      - name: Increment the tag
+        id: increment-tag
+        run: echo ::set-output name=tag::v$(echo "${{ steps.get-tag.outputs.tag }}" | cut -c2- | awk -F. '{$NF+=1; OFS="."; print $0}')
 
-      - name: Commit and push updated values.yaml
+      - name: Update values.yaml with the new tag
+        run: sed -i "s/tag: \"${{ steps.get-tag.outputs.tag }}\"/tag: \"${{ steps.increment-tag.outputs.tag }}\"/" chart/production/values.yaml
+
+      - name: Commit the changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chart/production/values.yaml
-          git commit -m "Increase tag version in values.yaml"
+          git commit -m "Increment image tag"
           git push
-
-      - name: Login to Harbor registry
-        run: docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Build and push Docker image
         run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
-          docker push harbor.bielcrystal.com/library/pydocker:$new_tag
+          docker build -t harbor.bielcrystal.com/library/pydocker:${{ steps.increment-tag.outputs.tag }} .
+          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
+          docker push harbor.bielcrystal.com/library/pydocker:${{ steps.increment-tag.outputs.tag }}
