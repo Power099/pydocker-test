@@ -23,7 +23,7 @@ jobs:
           
           # 将版本号加一
           new_version="release-0.0.$((version_number + 1))"
-          
+          echo "current_version = ${{current_version}} ,new_version = ${{new_version}}"
           # 替换values.yaml文件中的tag版本号
           sed -i "s/tag: \"$current_version\"/tag: \"$new_version\"/g" chart/production/values.yaml
 
