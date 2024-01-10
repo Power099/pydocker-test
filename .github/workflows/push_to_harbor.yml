@@ -12,12 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Increase version in values.yaml
-        run: |
-          sed -i 's/tag: "v0.2"/tag: "v0.$(( $(echo "$(cat chart/production/values.yaml)" | grep -oP '(?<=tag: "v)0*\K[0-9]+') + 1 ))"/' chart/production/values.yaml
-          git add chart/production/values.yaml
-          git commit -m "Bump version in values.yaml"
-          git push
+    
 
       - name: Login to Harbor registry
         run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
