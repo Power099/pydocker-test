@@ -1,13 +1,14 @@
 replicaCount: 1 # 需要启动的实例个数
 image:
-  repository: airasuka/pydocker # harbor仓镜像名称
+  repository: harbor.bielcrystal.com/library/pydocker # harbor仓镜像名称
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "release-v33" # 构建docker镜像时优先拉这个版本
+  tag: "v0.2" # 构建docker镜像时优先拉这个版本
 statefulset:
   enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
-imagePullSecrets: []
+imagePullSecrets: 
+  - name: harbor-registry
 nameOverride: ""
 fullnameOverride: ""
 serviceAccount:
@@ -31,19 +32,9 @@ securityContext: {}
 # runAsNonRoot: true
 # runAsUser: 1000
 
-service:
-  type: NodePort
-  ports:
-    - name: tcp
-      port: 1688
-      nodePort: 31688
-    - name: http
-      port: 8000
-  containerPorts:
-    - name: tcp
-      containerPort: 1688
-    - name: http
-      containerPort: 8000
+service: 
+  type: ClusterIP
+  port: 8080 # Muse same as docker exposed!
 ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   enabled: true #  true
   className: ""
