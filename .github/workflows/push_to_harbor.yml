@@ -13,19 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
       - name: Update Chart Version
         run: |
           # 获取当前tag版本号
           current_version=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
           
           # 提取版本号中的数字
-          version_number=$(echo $current_version | awk -F 'v' '{print $2}')
+          version_number=$(echo $current_version | awk -F 'release-' '{print $2}')
           
           # 将版本号加一
-          new_version="v0.$((version_number + 1))"
+          new_version="release-0.0.$((version_number + 1))"
           
           # 替换values.yaml文件中的tag版本号
           sed -i "s/tag: \"$current_version\"/tag: \"$new_version\"/g" chart/production/values.yaml
