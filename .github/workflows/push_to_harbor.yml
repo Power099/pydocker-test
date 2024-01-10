@@ -1,4 +1,4 @@
-name: Update Image Tag and Push to Harbor
+name: Update Chart Version and Push Image
 
 on:
   push:
@@ -6,31 +6,37 @@ on:
       - master
 
 jobs:
-  update-tag-and-push:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get the current tag from values.yaml
-        id: get-tag
-        run: echo ::set-output name=tag::$(awk '/tag:/ {print $2}' chart/production/values.yaml)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-      - name: Increment the tag
-        id: increment-tag
-        run: echo ::set-output name=tag::v$(echo "${{ steps.get-tag.outputs.tag }}" | cut -c2- | awk -F. '{$NF+=1; OFS="."; print $0}')
-
-      - name: Update values.yaml with the new tag
-        run: sed -i "s/tag: \"${{ steps.get-tag.outputs.tag }}\"/tag: \"${{ steps.increment-tag.outputs.tag }}\"/" chart/production/values.yaml
-
-      - name: Commit the changes
+      - name: Update Chart Version
         run: |
-          git add chart/production/values.yaml
-          git commit -m "Increment image tag"
-          git push
+          # 获取当前tag版本号
+          current_version=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
+          
+          # 提取版本号中的数字
+          version_number=$(echo $current_version | awk -F 'v' '{print $2}')
+          
+          # 将版本号加一
+          new_version="v0.$((version_number + 1))"
+          
+          # 替换values.yaml文件中的tag版本号
+          sed -i "s/tag: \"$current_version\"/tag: \"$new_version\"/g" chart/production/values.yaml
 
-      - name: Build and push Docker image
+      - name: Build and Push Docker Image
         run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:${{ steps.increment-tag.outputs.tag }} .
-          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
-          docker push harbor.bielcrystal.com/library/pydocker:${{ steps.increment-tag.outputs.tag }}
+          # 登录到私人harbor仓库
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} harbor.bielcrystal.com
+          
+          # 构建镜像
+          docker build -t harbor.bielcrystal.com/library/pydocker:$new_version .
+          
+          # 推送镜像到私人harbor仓库
+          docker push harbor.bielcrystal.com/library/pydocker:$new_version
