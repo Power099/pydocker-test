@@ -3,7 +3,7 @@ name: Increase Version and Push Image Tag
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   increase-version-and-push-image-tag:
