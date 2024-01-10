@@ -4,3 +4,7 @@ mariadb
 schedule
 fastapi
 uvicorn
+mysql-connector-python
+redis
+fastapi_sqlalchemy
+
