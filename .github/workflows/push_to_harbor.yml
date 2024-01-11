@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Increment tag in values.yaml
+        id: image
         run: |
           current_tag=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
           major=$(echo $current_tag | cut -d- -f2 | cut -d. -f2)
@@ -21,6 +22,7 @@ jobs:
           new_tag="release-0.${major}.${new_minor}"
           # sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
           echo "current_tag = $current_tag major = $major minor = $minor new_tag = $new_tag"
+          echo "version=$new_tag" >> $GITHUB_OUTPUT
         env:
           NEW_TAG: $new_tag
       - name: Modify Chart Yaml Tag
@@ -28,13 +30,13 @@ jobs:
         with:
           cmd: |
             files=$(find . -type f -name "values.yaml")
-            for f in $files; do yq eval -i '.image.tag="$NEW_TAG"' $f; done
+            for f in $files; do yq eval -i '.image.tag="${{ steps.image.outputs.version }}"' $f; done
       - name: Commit changes
         uses: EndBug/add-and-commit@v7
         with:
           default_author: github_actions
-          author_email: datalab@bielcrystal.com
-          message: "Update image tag to $NEW_TAG"
+          author_email: WQ@exmple.com
+          message: "Update image tag to ${{ steps.image.outputs.version }}"
           add: "*.yaml"
 
       - name: Login to Harbor registry
