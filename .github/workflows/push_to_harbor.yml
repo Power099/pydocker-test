@@ -16,12 +16,11 @@ jobs:
         id: image
         run: |
           current_tag=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
-          major=$(echo $current_tag | cut -d- -f2 | cut -d. -f2)
           minor=$(echo $current_tag | cut -d. -f3)
           new_minor=$((minor+1))
-          new_tag="release-0.${major}.${new_minor}"
+          new_tag="release-0.0.${new_minor}"
           # sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
-          echo "current_tag = $current_tag major = $major minor = $minor new_tag = $new_tag"
+          echo "current_tag = $current_tag new_minor = $new_minor minor = $minor new_tag = $new_tag"
           echo "version=$new_tag" >> $GITHUB_OUTPUT
         env:
           NEW_TAG: $new_tag
