@@ -4,10 +4,10 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "release-0.0.2" # 构建docker镜像时优先拉这个版本
+  tag: "release-0.0.3" # 构建docker镜像时优先拉这个版本
 statefulset:
   enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
-imagePullSecrets: 
+imagePullSecrets:
   - name: harbor-registry
 nameOverride: ""
 fullnameOverride: ""
@@ -32,17 +32,17 @@ securityContext: {}
 # runAsNonRoot: true
 # runAsUser: 1000
 
-service: 
+service:
   type: ClusterIP
   port: 8080 # Muse same as docker exposed!
 ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   enabled: true #  true
   className: ""
   # annotations:
-    # nginx.ingress.kubernetes.io/affinity: cookie
-    # nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-    # nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
-    # nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+  # nginx.ingress.kubernetes.io/affinity: cookie
+  # nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  # nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+  # nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
   hosts:
     - host: k3s.bielcrystal.com
       paths:
@@ -109,20 +109,20 @@ env: []
 ## Configure a volume
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/#configure-a-volume-for-a-pod/
 volumeMounts: []
-  # - name: common-certs
-  #   mountPath: "/common-certs"
-  #   readOnly: true
+# - name: common-certs
+#   mountPath: "/common-certs"
+#   readOnly: true
 volumes: []
-  # - name: common-certs
-  #   secret:
-  #     secretName: common-certs
+# - name: common-certs
+#   secret:
+#     secretName: common-certs
 ## Configure all key-value pairs in a ConfigMap or Secrets
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
 envFrom: [] # env环境变量配置 
-  # - secretRef:
-  #     name: cnc-backend # git仓项目名
-  # - secretRef:
-  #     name: common-env
+# - secretRef:
+#     name: cnc-backend # git仓项目名
+# - secretRef:
+#     name: common-env
 ## Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
 topologySpreadConstraints: []
@@ -138,20 +138,20 @@ cronjob:
   nodeSelector: {}
   tolerations: []
   volumeMounts: []
-    # - name: common-certs
-    #   mountPath: "/common-certs"
-    #   readOnly: true
+  # - name: common-certs
+  #   mountPath: "/common-certs"
+  #   readOnly: true
   envFrom: []
-    # - secretRef:
-    #     name: pydocker-test # git仓项目名
-    # - secretRef:
-    #     name: common-env
+  # - secretRef:
+  #     name: pydocker-test # git仓项目名
+  # - secretRef:
+  #     name: common-env
   command: []
-    # - python
-    # - -m
-    # - app.app.automation_jobs.resend_wecom_msg
+  # - python
+  # - -m
+  # - app.app.automation_jobs.resend_wecom_msg
   workingDir: /app # 脚本所在的目录
   volumes: []
-    # - name: common-certs
-    #   secret:
-    #     secretName: common-certs
+  # - name: common-certs
+  #   secret:
+  #     secretName: common-certs
