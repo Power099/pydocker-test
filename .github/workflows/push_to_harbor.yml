@@ -19,9 +19,16 @@ jobs:
           minor=$(echo $current_tag | cut -d. -f3)
           new_minor=$((minor+1))
           new_tag="release-0.${major}.${new_minor}"
-          sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
+          # sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
           echo "current_tag = $current_tag major = $major minor = $minor new_tag = $new_tag"
-
+        env:
+          NEW_TAG: $new_tag
+      - name: Modify Chart Yaml Tag
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            files=$(find . -type f -name "values.yaml")
+            for f in $files; do yq eval -i '.image.tag="$NEW_TAG"' $f; done
       - name: Commit and push updated values.yaml
         run: |
           git config --global user.email "you@example.com"
