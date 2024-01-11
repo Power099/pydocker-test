@@ -22,8 +22,6 @@ jobs:
           # sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
           echo "current_tag = $current_tag new_minor = $new_minor minor = $minor new_tag = $new_tag"
           echo "version=$new_tag" >> $GITHUB_OUTPUT
-        env:
-          NEW_TAG: $new_tag
       - name: Modify Chart Yaml Tag
         uses: mikefarah/yq@master
         with:
@@ -43,5 +41,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
-          docker push harbor.bielcrystal.com/library/pydocker:$new_tag
+          docker build -t harbor.bielcrystal.com/library/pydocker:${{ steps.image.outputs.version }} .
+          docker push harbor.bielcrystal.com/library/pydocker:${{ steps.image.outputs.version }}
