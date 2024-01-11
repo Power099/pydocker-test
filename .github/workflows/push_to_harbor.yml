@@ -1,4 +1,4 @@
-name: Update Chart Values and Push Image
+name: Auto-increment tag on merge to master
 
 on:
   push:
@@ -6,33 +6,34 @@ on:
       - master
 
 jobs:
-  update-chart-values-and-push-image:
+  auto_increment_tag:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Update Chart Values
-        uses: fjogeleit/yaml-update-action@main
-        with:
-          valueFile: 'chart/production/values.yaml'
-          propertyPath: 'image.tag'
-          value: ${{ steps.increment-tag.outputs.newTag }}
-          commitChange: true
-          message: 'Update image tag in values.yaml'
-
-      - name: Increment Tag
-        id: increment-tag
+      - name: Increment tag in values.yaml
         run: |
-          currentTag=$(awk '/tag:/ {print $2}' chart/production/values.yaml | tr -d '"')
-          IFS='.' read -r major minor <<< $currentTag
-          newTag="release-$major.$((minor + 1))"
-          echo "::set-output name=newTag::$newTag"
+          current_tag=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
+          major=$(echo $current_tag | cut -d. -f1 | cut -d- -f2)
+          minor=$(echo $current_tag | cut -d. -f2)
+          new_minor=$((minor+1))
+          new_tag="release-0.${major}.${new_minor}"
+          sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
+          echo "current_tag = " | $current_tag 
 
-      - name: Login to Harbor Registry
-        run: echo "${{ secrets.HARBOR_TOKEN }}" | docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
-
-      - name: Build and Push Docker Image
+      - name: Commit and push updated values.yaml
         run: |
-          docker build -t harbor.bielcrystal.com/library/pydocker:latest .
-          docker push harbor.bielcrystal.com/library/pydocker:latest
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git add chart/production/values.yaml
+          git commit -m "Auto-increment tag to $new_tag"
+          git push
+
+      - name: Login to Harbor registry
+        run: docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t harbor.bielcrystal.com/library/pydocker:$new_tag .
+          docker push harbor.bielcrystal.com/library/pydocker:$new_tag
