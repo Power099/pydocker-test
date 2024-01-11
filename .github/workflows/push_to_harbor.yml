@@ -29,13 +29,13 @@ jobs:
           cmd: |
             files=$(find . -type f -name "values.yaml")
             for f in $files; do yq eval -i '.image.tag="$NEW_TAG"' $f; done
-      - name: Commit and push updated values.yaml
-        run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-          git add chart/production/values.yaml
-          git commit -m "Auto-increment tag to $new_tag"
-          git push
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          default_author: github_actions
+          author_email: datalab@bielcrystal.com
+          message: "Update image tag to $NEW_TAG"
+          add: "*.yaml"
 
       - name: Login to Harbor registry
         run: docker login harbor.bielcrystal.com -u ${{ secrets.HARBOR_USERNAME }} -p ${{ secrets.HARBOR_PASSWORD }}
