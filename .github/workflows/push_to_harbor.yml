@@ -15,7 +15,7 @@ jobs:
       - name: Increment tag in values.yaml
         id: image
         run: |
-          current_tag=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}')
+          current_tag=$(grep 'tag:' chart/production/values.yaml | awk '{print $2}' | sed 's/"//g')
           minor=$(echo $current_tag | cut -d. -f3)
           new_minor=$((minor+1))
           new_tag="release-0.0.${new_minor}"
