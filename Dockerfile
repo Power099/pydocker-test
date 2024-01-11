@@ -9,7 +9,6 @@ VOLUME /user/src/app
 
 RUN apt-get -q update
 RUN apt install netcat-traditional -y
-RUN apt -y install iputils-ping
 
 EXPOSE 8080
 
