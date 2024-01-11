@@ -34,7 +34,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 8080 # Muse same as docker exposed!
+  port: 8000 # Muse same as docker exposed!
 ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   enabled: true #  true
   className: ""
@@ -46,7 +46,7 @@ ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   hosts:
     - host: k3s.bielcrystal.com
       paths:
-        - path: /pydocker-test
+        - path: /pydocker
           pathType: Prefix
   tls: []
   #  - secretName: k8s.bielcrystal.com.tls
