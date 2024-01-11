@@ -20,7 +20,7 @@ jobs:
           new_minor=$((minor+1))
           new_tag="release-0.${major}.${new_minor}"
           sed -i "s/tag: \"$current_tag\"/tag: \"$new_tag\"/" chart/production/values.yaml
-          echo "current_tag = $current_tag major = $major minor = $minor"
+          echo "current_tag = $current_tag major = $major minor = $minor new_tag = $new_tag"
 
       - name: Commit and push updated values.yaml
         run: |
