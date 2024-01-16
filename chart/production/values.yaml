@@ -4,7 +4,7 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "release-0.0.30" # 构建docker镜像时优先拉这个版本
+  tag: "release-0.0.31" # 构建docker镜像时优先拉这个版本
 statefulset:
   enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
 imagePullSecrets:
