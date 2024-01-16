@@ -10,7 +10,7 @@ app = FastAPI(itle="pydocker service",
         description="pydocker后台服务",
         contact={"email": "wq@bielcrystal.com"},
         openapi_url=f"{PREFIX}/openapi.json",
-        docs_url=f"{PREFIX}/",)
+        docs_url=f"{PREFIX}/docs",)
 
 app.include_router(router=router, prefix=PREFIX)
 app.add_middleware(
