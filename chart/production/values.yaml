@@ -141,9 +141,9 @@ cronjob:
   # - name: common-certs
   #   mountPath: "/common-certs"
   #   readOnly: true
-  envFrom: []
-  # - secretRef:
-  #     name: pydocker-test # git仓项目名
+  envFrom: 
+  - secretRef:
+      name: pydocker # git仓项目名
   # - secretRef:
   #     name: common-env
   command: []
