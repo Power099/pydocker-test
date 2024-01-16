@@ -5,4 +5,8 @@ uvicorn==0.21.1
 mysql-connector-python==8.2.0
 redis==5.0.0
 fastapi_sqlalchemy==0.2.1
-
+websockets==12.0
+attrs==23.1.0
+distlib==0.3.7
+python-dotenv==1.0.0
+typing_extensions==4.7.1
