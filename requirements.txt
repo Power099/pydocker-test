@@ -6,8 +6,7 @@ mysql-connector-python==8.2.0
 redis==5.0.0
 fastapi_sqlalchemy==0.2.1
 websockets==12.0
-# attrs自动生成相应的方法，比如__init__、__repr__等
 attrs==23.1.0
-# distlib: 用于处理 Python 包的分发和安装
 distlib==0.3.7
 python-dotenv==1.0.0
+typing_extensions==4.7.1
