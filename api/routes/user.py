@@ -1,8 +1,7 @@
 import fastapi
 from fastapi_sqlalchemy import db
 from models import UserInfo
-from fastapi import FastAPI, WebSocket
-from fastapi.responses import HTMLResponse
+
 
 router = fastapi.APIRouter(prefix="/user", tags=["user"])
 
@@ -29,9 +28,3 @@ def add_user(username: str, password: str):
 
     return {"message": "Add user successfully"}
 
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")

@@ -1,12 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from api import router 
 from configs import settings
 from fastapi_sqlalchemy import DBSessionMiddleware
 from models.db.session import engine, session_args
-from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 
-app = FastAPI()
+app = FastAPI(docs_url="/")
 PREFIX = f"/{settings.PROJECT_NAME}"
 app.include_router(router=router, prefix=PREFIX)
 app.add_middleware(
@@ -19,3 +18,6 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_text()
         await websocket.send_text(f"Message text was: {data}")
+        
+
+        

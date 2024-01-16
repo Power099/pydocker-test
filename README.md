@@ -6,3 +6,4 @@ Docker练习项目
 
 
 
+uvicorn main:app --reload
