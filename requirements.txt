@@ -10,3 +10,16 @@ attrs==23.1.0
 distlib==0.3.7
 python-dotenv==1.0.0
 typing_extensions==4.7.1
+# 
+pytest==7.2.2
+pytest-asyncio==0.21.0
+pycryptodome==3.18.0
+pyaes==1.6.1
+pydantic==1.10.7
+SQLAlchemy==2.0.7
+APScheduler==3.9.1
+httpx==0.24.0
+python-multipart==0.0.6
+loguru==0.7.0
+parameterized==0.9.0
+python-jose==3.3.0
