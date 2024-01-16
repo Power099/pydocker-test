@@ -4,9 +4,9 @@ WORKDIR /user/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
-COPY main.py /user/src/app/
+COPY . /user/src/app/
 VOLUME /user/src/app
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD ["uvicorn","main:app","--reload"]
