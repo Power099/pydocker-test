@@ -33,7 +33,7 @@ securityContext: {}
 # runAsUser: 1000
 
 service:
-  type: NodePort
+  type: ClusterIP
   port: 8000 # Muse same as docker exposed!
 ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   enabled: true #  true
