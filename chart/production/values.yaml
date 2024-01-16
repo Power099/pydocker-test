@@ -4,7 +4,7 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
 
-  tag: "release-0.0.20" # 构建docker镜像时优先拉这个版本
+  tag: "release-0.0.31" # 构建docker镜像时优先拉这个版本
 statefulset:
   enabled: true # use statefulset or deployment      # 是否保存临时状态（镜像运行过程产生的基础数据）
 imagePullSecrets:
@@ -118,9 +118,9 @@ volumes: []
 #     secretName: common-certs
 ## Configure all key-value pairs in a ConfigMap or Secrets
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
-envFrom:  # env环境变量配置 
-- secretRef:
-    name: pydocker # git仓项目名
+envFrom: # env环境变量配置 
+  - secretRef:
+      name: pydocker # git仓项目名
 # - secretRef:
 #     name: common-env
 ## Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
@@ -141,9 +141,9 @@ cronjob:
   # - name: common-certs
   #   mountPath: "/common-certs"
   #   readOnly: true
-  envFrom: 
-  - secretRef:
-      name: pydocker # git仓项目名
+  envFrom:
+    - secretRef:
+        name: pydocker # git仓项目名
   # - secretRef:
   #     name: common-env
   command: []
