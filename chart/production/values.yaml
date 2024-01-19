@@ -44,7 +44,7 @@ ingress: # 一个路由只能对外暴漏一个基础路径，例如fastapi
   # nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
   # nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
   hosts:
-    - host: k3s.bielcrystal.com
+    - host: k8s.bielcrystal.com
       paths:
         - path: /pydocker
           pathType: Prefix
